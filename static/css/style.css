@@ -175,3 +175,191 @@ footer {
 .home-nav .separator {
   color: var(--color-text-muted);
 }
+
+/* Empty State */
+.empty-state {
+  color: var(--color-text-muted);
+  font-style: italic;
+}
+
+/* Blog List */
+.blog-list h1 {
+  margin-bottom: 2rem;
+}
+
+.post-list {
+  list-style: none;
+}
+
+.post-item {
+  margin-bottom: 1rem;
+}
+
+.post-item a {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  color: var(--color-text);
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.post-item a:hover {
+  text-decoration: none;
+  color: var(--color-accent);
+}
+
+.post-title {
+  font-weight: 500;
+}
+
+.post-date {
+  color: var(--color-text-muted);
+  font-size: 0.875rem;
+}
+
+/* Blog Post */
+.blog-post {
+  max-width: 100%;
+}
+
+.post-header {
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.post-header h1 {
+  margin-bottom: 0.5rem;
+}
+
+.post-header .post-date {
+  color: var(--color-text-muted);
+}
+
+.post-content {
+  margin-bottom: 2rem;
+}
+
+.post-content h2 {
+  margin-top: 2rem;
+}
+
+.post-content ul, .post-content ol {
+  margin-left: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.post-footer {
+  padding-top: 1rem;
+  border-top: 1px solid var(--color-border);
+}
+
+/* Projects */
+.projects-list h1 {
+  margin-bottom: 2rem;
+}
+
+.projects {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.project-card {
+  padding-bottom: 2rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.project-card:last-child {
+  border-bottom: none;
+}
+
+.project-name {
+  margin-bottom: 0.5rem;
+}
+
+.project-description {
+  color: var(--color-text-muted);
+  margin-bottom: 0.75rem;
+}
+
+.project-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.tag {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  background-color: var(--color-border);
+  padding: 0.2rem 0.5rem;
+  border-radius: 3px;
+}
+
+.project-links {
+  display: flex;
+  gap: 1rem;
+}
+
+/* Quotes */
+.quotes-list h1 {
+  margin-bottom: 1rem;
+}
+
+.random-quote-btn {
+  background-color: var(--color-accent);
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 0.875rem;
+  margin-bottom: 1.5rem;
+}
+
+.random-quote-btn:hover {
+  opacity: 0.9;
+}
+
+#random-quote {
+  margin-bottom: 2rem;
+}
+
+#random-quote:empty {
+  display: none;
+}
+
+.quotes {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.quote-card {
+  padding: 1rem 1.5rem;
+  border-left: 3px solid var(--color-border);
+  margin: 0;
+}
+
+.quote-card.quote-own {
+  border-left-color: var(--color-accent);
+}
+
+.quote-content {
+  font-style: italic;
+  margin-bottom: 0.5rem;
+}
+
+.quote-author {
+  color: var(--color-text-muted);
+  font-size: 0.875rem;
+}
+
+.own-marker {
+  color: var(--color-accent);
+  margin-left: 0.25rem;
+}

@@ -1,0 +1,41 @@
+package pages
+
+import (
+	"github.com/ioverpi/personal-site/internal/models"
+	"github.com/ioverpi/personal-site/templates/layouts"
+)
+
+templ ProjectsList(projects []models.Project) {
+	@layouts.Base("Projects") {
+		<div class="projects-list">
+			<h1>Projects</h1>
+			if len(projects) == 0 {
+				<p class="empty-state">No projects yet.</p>
+			} else {
+				<div class="projects">
+					for _, project := range projects {
+						<div class="project-card">
+							<h2 class="project-name">{ project.Name }</h2>
+							<p class="project-description">{ project.Description }</p>
+							if len(project.Tags) > 0 {
+								<div class="project-tags">
+									for _, tag := range project.Tags {
+										<span class="tag">{ tag }</span>
+									}
+								</div>
+							}
+							<div class="project-links">
+								if project.GithubURL != nil && *project.GithubURL != "" {
+									<a href={ templ.SafeURL(*project.GithubURL) } target="_blank" rel="noopener">GitHub</a>
+								}
+								if project.DemoURL != nil && *project.DemoURL != "" {
+									<a href={ templ.SafeURL(*project.DemoURL) } target="_blank" rel="noopener">Demo</a>
+								}
+							</div>
+						</div>
+					}
+				</div>
+			}
+		</div>
+	}
+}

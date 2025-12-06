@@ -1,0 +1,44 @@
+package pages
+
+import (
+	"github.com/ioverpi/personal-site/internal/models"
+	"github.com/ioverpi/personal-site/templates/layouts"
+)
+
+templ QuotesList(quotes []models.Quote) {
+	@layouts.Base("Quotes") {
+		<div class="quotes-list">
+			<h1>Quotes</h1>
+			<button
+				class="random-quote-btn"
+				hx-get="/quotes/random"
+				hx-target="#random-quote"
+				hx-swap="innerHTML"
+			>
+				Random Quote
+			</button>
+			<div id="random-quote"></div>
+			if len(quotes) == 0 {
+				<p class="empty-state">No quotes yet.</p>
+			} else {
+				<div class="quotes">
+					for _, quote := range quotes {
+						@QuoteCard(&quote)
+					}
+				</div>
+			}
+		</div>
+	}
+}
+
+templ QuoteCard(quote *models.Quote) {
+	<blockquote class={ "quote-card", templ.KV("quote-own", quote.IsOwn) }>
+		<p class="quote-content">"{ quote.Content }"</p>
+		<footer class="quote-author">
+			— { quote.Author }
+			if quote.IsOwn {
+				<span class="own-marker" title="My own quote">*</span>
+			}
+		</footer>
+	</blockquote>
+}

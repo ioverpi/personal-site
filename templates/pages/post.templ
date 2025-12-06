@@ -1,0 +1,25 @@
+package pages
+
+import (
+	"github.com/ioverpi/personal-site/internal/models"
+	"github.com/ioverpi/personal-site/templates/layouts"
+)
+
+templ BlogPost(post *models.Post) {
+	@layouts.Base(post.Title) {
+		<article class="blog-post">
+			<header class="post-header">
+				<h1>{ post.Title }</h1>
+				if post.PublishedAt != nil {
+					<time class="post-date">{ post.PublishedAt.Format("January 2, 2006") }</time>
+				}
+			</header>
+			<div class="post-content">
+				@templ.Raw(post.Content)
+			</div>
+			<footer class="post-footer">
+				<a href="/blog">&larr; Back to blog</a>
+			</footer>
+		</article>
+	}
+}

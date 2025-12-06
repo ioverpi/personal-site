@@ -1,0 +1,32 @@
+package pages
+
+import (
+	"github.com/ioverpi/personal-site/internal/models"
+	"github.com/ioverpi/personal-site/templates/layouts"
+)
+
+templ BlogList(posts []models.Post) {
+	@layouts.Base("Blog") {
+		<div class="blog-list">
+			<h1>Blog</h1>
+			if len(posts) == 0 {
+				<p class="empty-state">No posts yet.</p>
+			} else {
+				<ul class="post-list">
+					for _, post := range posts {
+						<li class="post-item">
+							<a href={ templ.SafeURL("/blog/" + post.Slug) }>
+								<span class="post-title">{ post.Title }</span>
+								<span class="post-date">
+									if post.PublishedAt != nil {
+										{ post.PublishedAt.Format("January 2006") }
+									}
+								</span>
+							</a>
+						</li>
+					}
+				</ul>
+			}
+		</div>
+	}
+}
