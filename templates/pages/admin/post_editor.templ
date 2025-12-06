@@ -1,0 +1,100 @@
+package admin
+
+import (
+	"fmt"
+	"github.com/ioverpi/personal-site/internal/models"
+	"github.com/ioverpi/personal-site/templates/layouts"
+)
+
+templ PostEditor(post *models.Post) {
+	@layouts.Base(postEditorTitle(post)) {
+		<div class="admin-editor">
+			<div class="editor-header">
+				<a href="/admin">&larr; Back to Dashboard</a>
+				<h1>{ postEditorTitle(post) }</h1>
+			</div>
+			<form method="POST" action={ postEditorAction(post) }>
+				<div class="form-group">
+					<label for="title">Title</label>
+					<input
+						type="text"
+						id="title"
+						name="title"
+						value={ postTitle(post) }
+						required
+					/>
+				</div>
+				<div class="form-group">
+					<label for="slug">Slug</label>
+					<input
+						type="text"
+						id="slug"
+						name="slug"
+						value={ postSlug(post) }
+						placeholder="auto-generated from title if empty"
+					/>
+				</div>
+				<div class="form-group">
+					<label for="content">Content (HTML)</label>
+					<textarea
+						id="content"
+						name="content"
+						rows="20"
+						required
+					>{ postContent(post) }</textarea>
+				</div>
+				<div class="form-group checkbox">
+					<label>
+						<input
+							type="checkbox"
+							name="publish"
+							if post != nil && post.PublishedAt != nil {
+								checked
+							}
+						/>
+						Published
+					</label>
+				</div>
+				<div class="form-actions">
+					<button type="submit" class="btn btn-primary">Save</button>
+					<a href="/admin" class="btn btn-secondary">Cancel</a>
+				</div>
+			</form>
+		</div>
+	}
+}
+
+func postEditorTitle(post *models.Post) string {
+	if post == nil {
+		return "New Post"
+	}
+	return "Edit Post"
+}
+
+func postEditorAction(post *models.Post) templ.SafeURL {
+	if post == nil {
+		return "/admin/posts"
+	}
+	return templ.SafeURL(fmt.Sprintf("/admin/posts/%d", post.ID))
+}
+
+func postTitle(post *models.Post) string {
+	if post == nil {
+		return ""
+	}
+	return post.Title
+}
+
+func postSlug(post *models.Post) string {
+	if post == nil {
+		return ""
+	}
+	return post.Slug
+}
+
+func postContent(post *models.Post) string {
+	if post == nil {
+		return ""
+	}
+	return post.Content
+}

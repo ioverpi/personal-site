@@ -1,0 +1,21 @@
+package admin
+
+import "github.com/ioverpi/personal-site/templates/layouts"
+
+templ Login(errorMsg string) {
+	@layouts.Base("Admin Login") {
+		<div class="admin-login">
+			<h1>Admin Login</h1>
+			if errorMsg != "" {
+				<p class="error">{ errorMsg }</p>
+			}
+			<form method="POST" action="/admin/login">
+				<div class="form-group">
+					<label for="password">Password</label>
+					<input type="password" id="password" name="password" required autofocus/>
+				</div>
+				<button type="submit" class="btn btn-primary">Login</button>
+			</form>
+		</div>
+	}
+}

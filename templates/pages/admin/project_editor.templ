@@ -1,0 +1,139 @@
+package admin
+
+import (
+	"fmt"
+	"strings"
+	"github.com/ioverpi/personal-site/internal/models"
+	"github.com/ioverpi/personal-site/templates/layouts"
+)
+
+templ ProjectEditor(project *models.Project) {
+	@layouts.Base(projectEditorTitle(project)) {
+		<div class="admin-editor">
+			<div class="editor-header">
+				<a href="/admin">&larr; Back to Dashboard</a>
+				<h1>{ projectEditorTitle(project) }</h1>
+			</div>
+			<form method="POST" action={ projectEditorAction(project) }>
+				<div class="form-group">
+					<label for="name">Name</label>
+					<input
+						type="text"
+						id="name"
+						name="name"
+						value={ projectName(project) }
+						required
+					/>
+				</div>
+				<div class="form-group">
+					<label for="description">Description</label>
+					<textarea
+						id="description"
+						name="description"
+						rows="4"
+						required
+					>{ projectDescription(project) }</textarea>
+				</div>
+				<div class="form-group">
+					<label for="tags">Tags (comma-separated)</label>
+					<input
+						type="text"
+						id="tags"
+						name="tags"
+						value={ projectTags(project) }
+						placeholder="Go, PostgreSQL, htmx"
+					/>
+				</div>
+				<div class="form-group">
+					<label for="github_url">GitHub URL</label>
+					<input
+						type="url"
+						id="github_url"
+						name="github_url"
+						value={ projectGithubURL(project) }
+						placeholder="https://github.com/..."
+					/>
+				</div>
+				<div class="form-group">
+					<label for="demo_url">Demo URL</label>
+					<input
+						type="url"
+						id="demo_url"
+						name="demo_url"
+						value={ projectDemoURL(project) }
+						placeholder="https://..."
+					/>
+				</div>
+				<div class="form-group">
+					<label for="display_order">Display Order</label>
+					<input
+						type="number"
+						id="display_order"
+						name="display_order"
+						value={ projectDisplayOrder(project) }
+					/>
+				</div>
+				<div class="form-actions">
+					<button type="submit" class="btn btn-primary">Save</button>
+					<a href="/admin" class="btn btn-secondary">Cancel</a>
+				</div>
+			</form>
+		</div>
+	}
+}
+
+func projectEditorTitle(project *models.Project) string {
+	if project == nil {
+		return "New Project"
+	}
+	return "Edit Project"
+}
+
+func projectEditorAction(project *models.Project) templ.SafeURL {
+	if project == nil {
+		return "/admin/projects"
+	}
+	return templ.SafeURL(fmt.Sprintf("/admin/projects/%d", project.ID))
+}
+
+func projectName(project *models.Project) string {
+	if project == nil {
+		return ""
+	}
+	return project.Name
+}
+
+func projectDescription(project *models.Project) string {
+	if project == nil {
+		return ""
+	}
+	return project.Description
+}
+
+func projectTags(project *models.Project) string {
+	if project == nil || len(project.Tags) == 0 {
+		return ""
+	}
+	return strings.Join(project.Tags, ", ")
+}
+
+func projectGithubURL(project *models.Project) string {
+	if project == nil || project.GithubURL == nil {
+		return ""
+	}
+	return *project.GithubURL
+}
+
+func projectDemoURL(project *models.Project) string {
+	if project == nil || project.DemoURL == nil {
+		return ""
+	}
+	return *project.DemoURL
+}
+
+func projectDisplayOrder(project *models.Project) string {
+	if project == nil {
+		return "0"
+	}
+	return fmt.Sprintf("%d", project.DisplayOrder)
+}

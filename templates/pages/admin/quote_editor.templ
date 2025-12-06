@@ -1,0 +1,83 @@
+package admin
+
+import (
+	"fmt"
+	"github.com/ioverpi/personal-site/internal/models"
+	"github.com/ioverpi/personal-site/templates/layouts"
+)
+
+templ QuoteEditor(quote *models.Quote) {
+	@layouts.Base(quoteEditorTitle(quote)) {
+		<div class="admin-editor">
+			<div class="editor-header">
+				<a href="/admin">&larr; Back to Dashboard</a>
+				<h1>{ quoteEditorTitle(quote) }</h1>
+			</div>
+			<form method="POST" action={ quoteEditorAction(quote) }>
+				<div class="form-group">
+					<label for="content">Quote</label>
+					<textarea
+						id="content"
+						name="content"
+						rows="4"
+						required
+					>{ quoteContent(quote) }</textarea>
+				</div>
+				<div class="form-group">
+					<label for="author">Author</label>
+					<input
+						type="text"
+						id="author"
+						name="author"
+						value={ quoteAuthor(quote) }
+						required
+					/>
+				</div>
+				<div class="form-group checkbox">
+					<label>
+						<input
+							type="checkbox"
+							name="is_own"
+							if quote != nil && quote.IsOwn {
+								checked
+							}
+						/>
+						This is my own quote
+					</label>
+				</div>
+				<div class="form-actions">
+					<button type="submit" class="btn btn-primary">Save</button>
+					<a href="/admin" class="btn btn-secondary">Cancel</a>
+				</div>
+			</form>
+		</div>
+	}
+}
+
+func quoteEditorTitle(quote *models.Quote) string {
+	if quote == nil {
+		return "New Quote"
+	}
+	return "Edit Quote"
+}
+
+func quoteEditorAction(quote *models.Quote) templ.SafeURL {
+	if quote == nil {
+		return "/admin/quotes"
+	}
+	return templ.SafeURL(fmt.Sprintf("/admin/quotes/%d", quote.ID))
+}
+
+func quoteContent(quote *models.Quote) string {
+	if quote == nil {
+		return ""
+	}
+	return quote.Content
+}
+
+func quoteAuthor(quote *models.Quote) string {
+	if quote == nil {
+		return ""
+	}
+	return quote.Author
+}

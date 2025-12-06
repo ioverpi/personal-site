@@ -1,0 +1,137 @@
+package admin
+
+import (
+	"fmt"
+	"github.com/ioverpi/personal-site/internal/models"
+	"github.com/ioverpi/personal-site/templates/layouts"
+)
+
+templ Dashboard(posts []models.Post, projects []models.Project, quotes []models.Quote) {
+	@layouts.Base("Admin Dashboard") {
+		<div class="admin-dashboard">
+			<div class="admin-header">
+				<h1>Admin Dashboard</h1>
+				<a href="/admin/logout" class="btn btn-secondary">Logout</a>
+			</div>
+
+			<section class="admin-section">
+				<div class="section-header">
+					<h2>Posts ({ fmt.Sprintf("%d", len(posts)) })</h2>
+					<a href="/admin/posts/new" class="btn btn-primary">New Post</a>
+				</div>
+				if len(posts) == 0 {
+					<p class="empty-state">No posts yet.</p>
+				} else {
+					<table class="admin-table">
+						<thead>
+							<tr>
+								<th>Title</th>
+								<th>Status</th>
+								<th>Actions</th>
+							</tr>
+						</thead>
+						<tbody>
+							for _, post := range posts {
+								<tr>
+									<td>{ post.Title }</td>
+									<td>
+										if post.PublishedAt != nil {
+											<span class="status status-published">Published</span>
+										} else {
+											<span class="status status-draft">Draft</span>
+										}
+									</td>
+									<td class="actions">
+										<a href={ templ.SafeURL(fmt.Sprintf("/admin/posts/%d/edit", post.ID)) }>Edit</a>
+										<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/posts/%d/delete", post.ID)) } class="inline-form">
+											<button type="submit" class="btn-link btn-danger" onclick="return confirm('Delete this post?')">Delete</button>
+										</form>
+									</td>
+								</tr>
+							}
+						</tbody>
+					</table>
+				}
+			</section>
+
+			<section class="admin-section">
+				<div class="section-header">
+					<h2>Projects ({ fmt.Sprintf("%d", len(projects)) })</h2>
+					<a href="/admin/projects/new" class="btn btn-primary">New Project</a>
+				</div>
+				if len(projects) == 0 {
+					<p class="empty-state">No projects yet.</p>
+				} else {
+					<table class="admin-table">
+						<thead>
+							<tr>
+								<th>Name</th>
+								<th>Order</th>
+								<th>Actions</th>
+							</tr>
+						</thead>
+						<tbody>
+							for _, project := range projects {
+								<tr>
+									<td>{ project.Name }</td>
+									<td>{ fmt.Sprintf("%d", project.DisplayOrder) }</td>
+									<td class="actions">
+										<a href={ templ.SafeURL(fmt.Sprintf("/admin/projects/%d/edit", project.ID)) }>Edit</a>
+										<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/projects/%d/delete", project.ID)) } class="inline-form">
+											<button type="submit" class="btn-link btn-danger" onclick="return confirm('Delete this project?')">Delete</button>
+										</form>
+									</td>
+								</tr>
+							}
+						</tbody>
+					</table>
+				}
+			</section>
+
+			<section class="admin-section">
+				<div class="section-header">
+					<h2>Quotes ({ fmt.Sprintf("%d", len(quotes)) })</h2>
+					<a href="/admin/quotes/new" class="btn btn-primary">New Quote</a>
+				</div>
+				if len(quotes) == 0 {
+					<p class="empty-state">No quotes yet.</p>
+				} else {
+					<table class="admin-table">
+						<thead>
+							<tr>
+								<th>Quote</th>
+								<th>Author</th>
+								<th>Actions</th>
+							</tr>
+						</thead>
+						<tbody>
+							for _, quote := range quotes {
+								<tr>
+									<td class="quote-preview">
+										if len(quote.Content) > 50 {
+											{ quote.Content[:50] }...
+										} else {
+											{ quote.Content }
+										}
+									</td>
+									<td>
+										{ quote.Author }
+										if quote.IsOwn {
+											<span class="own-marker">*</span>
+										}
+									</td>
+									<td class="actions">
+										<a href={ templ.SafeURL(fmt.Sprintf("/admin/quotes/%d/edit", quote.ID)) }>Edit</a>
+										<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/quotes/%d/delete", quote.ID)) } class="inline-form">
+											<button type="submit" class="btn-link btn-danger" onclick="return confirm('Delete this quote?')">Delete</button>
+										</form>
+									</td>
+								</tr>
+							}
+						</tbody>
+					</table>
+				}
+			</section>
+		</div>
+	}
+}
