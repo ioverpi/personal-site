@@ -9,6 +9,23 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U dev -d personal_site"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      DATABASE_URL: postgres://dev:dev@db:5432/personal_site?sslmode=disable
+      PORT: "3000"
+      ADMIN_PASSWORD: admin
+    depends_on:
+      db:
+        condition: service_healthy
 
 volumes:
   postgres_data:
