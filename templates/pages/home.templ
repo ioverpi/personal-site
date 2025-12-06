@@ -1,0 +1,22 @@
+package pages
+
+import "github.com/ioverpi/personal-site/templates/layouts"
+
+templ Home() {
+	@layouts.Base("Home") {
+		<div class="home">
+			<h1>Your Name</h1>
+			<p class="intro">
+				A sentence or two about who you are.
+				What you're curious about.
+			</p>
+			<nav class="home-nav">
+				<a href="/blog">Blog</a>
+				<span class="separator">·</span>
+				<a href="/projects">Projects</a>
+				<span class="separator">·</span>
+				<a href="/quotes">Quotes</a>
+			</nav>
+		</div>
+	}
+}
