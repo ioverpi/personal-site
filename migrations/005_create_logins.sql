@@ -9,5 +9,5 @@ CREATE TABLE IF NOT EXISTS logins (
     UNIQUE(provider, provider_id)
 );
 
-CREATE INDEX idx_logins_user_id ON logins(user_id);
-CREATE INDEX idx_logins_provider ON logins(provider, provider_id);
+CREATE INDEX IF NOT EXISTS idx_logins_user_id ON logins(user_id);
+CREATE INDEX IF NOT EXISTS idx_logins_provider ON logins(provider, provider_id);

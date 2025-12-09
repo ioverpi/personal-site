@@ -8,5 +8,5 @@ CREATE TABLE IF NOT EXISTS invites (
     created_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
-CREATE INDEX idx_invites_token ON invites(token);
-CREATE INDEX idx_invites_email ON invites(email);
+CREATE INDEX IF NOT EXISTS idx_invites_token ON invites(token);
+CREATE INDEX IF NOT EXISTS idx_invites_email ON invites(email);

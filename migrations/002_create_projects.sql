@@ -9,4 +9,4 @@ CREATE TABLE IF NOT EXISTS projects (
     created_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
-CREATE INDEX idx_projects_display_order ON projects(display_order);
+CREATE INDEX IF NOT EXISTS idx_projects_display_order ON projects(display_order);

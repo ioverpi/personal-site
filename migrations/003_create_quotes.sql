@@ -6,4 +6,4 @@ CREATE TABLE IF NOT EXISTS quotes (
     created_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
-CREATE INDEX idx_quotes_is_own ON quotes(is_own);
+CREATE INDEX IF NOT EXISTS idx_quotes_is_own ON quotes(is_own);
