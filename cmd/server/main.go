@@ -2,7 +2,7 @@ package main
 
 import (
 	"context"
-	"log"
+	"log/slog"
 	"net/http"
 	"os"
 	"os/signal"
@@ -22,23 +22,31 @@ import (
 func main() {
 	cfg := config.Load()
 
-	// Set Gin mode based on environment
+	// Configure structured logging
+	var handler slog.Handler
 	if cfg.Environment == "production" {
 		gin.SetMode(gin.ReleaseMode)
+		handler = slog.NewJSONHandler(os.Stdout, nil)
+	} else {
+		handler = slog.NewTextHandler(os.Stdout, nil)
 	}
+	slog.SetDefault(slog.New(handler))
 
 	// Set migrations for database package
 	database.MigrationsFS = migrations.FS
 
 	application, err := app.New(cfg)
 	if err != nil {
-		log.Fatalf("Failed to initialize app: %v", err)
+		slog.Error("failed to initialize app", "error", err)
+		os.Exit(1)
 	}
 	defer application.Close()
 
-	r := gin.Default()
-
-	// Security headers
+	// Use Gin without default middleware, add our own
+	r := gin.New()
+	r.Use(gin.Recovery())
+	r.Use(middleware.RequestID())
+	r.Use(middleware.Logger())
 	r.Use(middleware.SecurityHeaders())
 
 	// Static files
@@ -137,9 +145,10 @@ func main() {
 
 	// Start server in goroutine
 	go func() {
-		log.Printf("Server starting on port %s", cfg.Port)
+		slog.Info("server starting", "port", cfg.Port)
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			log.Fatalf("Failed to start server: %v", err)
+			slog.Error("failed to start server", "error", err)
+			os.Exit(1)
 		}
 	}()
 
@@ -147,15 +156,16 @@ func main() {
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	<-quit
-	log.Println("Shutting down server...")
+	slog.Info("shutting down server")
 
 	// Give outstanding requests 10 seconds to complete
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
 	if err := srv.Shutdown(ctx); err != nil {
-		log.Fatalf("Server forced to shutdown: %v", err)
+		slog.Error("server forced to shutdown", "error", err)
+		os.Exit(1)
 	}
 
-	log.Println("Server exited")
+	slog.Info("server exited")
 }
