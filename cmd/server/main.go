@@ -30,13 +30,23 @@ func main() {
 	projectsService := services.NewProjectsService(application)
 	quotesService := services.NewQuotesService(application)
 	adminService := services.NewAdminService(application)
+	authService := services.NewAuthService(application)
+	userService := services.NewUserService(application)
 
 	// Controllers
 	homeCtrl := controllers.NewHomeController()
 	blogCtrl := controllers.NewBlogController(blogService)
 	projectsCtrl := controllers.NewProjectsController(projectsService)
 	quotesCtrl := controllers.NewQuotesController(quotesService)
-	adminCtrl := controllers.NewAdminController(adminService, blogService, projectsService, quotesService, cfg.AdminPassword)
+	adminCtrl := controllers.NewAdminController(
+		adminService,
+		blogService,
+		projectsService,
+		quotesService,
+		authService,
+		userService,
+		cfg,
+	)
 
 	// Public routes
 	r.GET("/", homeCtrl.Index)
@@ -46,14 +56,26 @@ func main() {
 	r.GET("/quotes", quotesCtrl.List)
 	r.GET("/quotes/random", quotesCtrl.Random)
 
-	// Admin routes
+	// Registration (public, via invite token)
+	r.GET("/register", adminCtrl.RegisterPage)
+	r.POST("/register", adminCtrl.Register)
+
+	// Admin auth routes (no auth required)
+	r.GET("/admin/login", adminCtrl.LoginPage)
+	r.POST("/admin/login", adminCtrl.Login)
+
+	// Protected admin routes
 	admin := r.Group("/admin")
-	admin.Use(middleware.AdminAuth(cfg.AdminPassword))
+	admin.Use(middleware.AuthMiddleware(authService, cfg.SecureCookies))
 	{
-		admin.GET("/login", adminCtrl.LoginPage)
-		admin.POST("/login", adminCtrl.Login)
 		admin.GET("/logout", adminCtrl.Logout)
 		admin.GET("/", adminCtrl.Dashboard)
+
+		// Users (admin only)
+		admin.GET("/users", adminCtrl.UsersList)
+		admin.GET("/invites/new", adminCtrl.NewInvite)
+		admin.POST("/invites", adminCtrl.CreateInvite)
+		admin.POST("/invites/:id/delete", adminCtrl.DeleteInvite)
 
 		// Posts
 		admin.GET("/posts/new", adminCtrl.NewPost)

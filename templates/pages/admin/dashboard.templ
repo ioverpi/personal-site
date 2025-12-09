@@ -6,12 +6,20 @@ import (
 	"github.com/ioverpi/personal-site/templates/layouts"
 )
 
-templ Dashboard(posts []models.Post, projects []models.Project, quotes []models.Quote) {
+templ Dashboard(user *models.User, posts []models.Post, projects []models.Project, quotes []models.Quote) {
 	@layouts.Base("Admin Dashboard") {
 		<div class="admin-dashboard">
 			<div class="admin-header">
-				<h1>Admin Dashboard</h1>
-				<a href="/admin/logout" class="btn btn-secondary">Logout</a>
+				<div>
+					<h1>Admin Dashboard</h1>
+					<p class="user-info">Logged in as { user.Name } ({ user.Email })</p>
+				</div>
+				<div class="header-actions">
+					if user.IsAdmin() {
+						<a href="/admin/users" class="btn btn-secondary">Users</a>
+					}
+					<a href="/admin/logout" class="btn btn-secondary">Logout</a>
+				</div>
 			</div>
 
 			<section class="admin-section">

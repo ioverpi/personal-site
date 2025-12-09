@@ -1,0 +1,94 @@
+package admin
+
+import (
+	"fmt"
+	"github.com/ioverpi/personal-site/internal/models"
+	"github.com/ioverpi/personal-site/templates/layouts"
+)
+
+templ UsersList(currentUser *models.User, users []models.User, invites []models.Invite) {
+	@layouts.Base("Users") {
+		<div class="admin-dashboard">
+			<div class="admin-header">
+				<div>
+					<h1>Users</h1>
+					<a href="/admin">&larr; Back to Dashboard</a>
+				</div>
+				<a href="/admin/invites/new" class="btn btn-primary">Invite User</a>
+			</div>
+
+			<section class="admin-section">
+				<div class="section-header">
+					<h2>Users ({ fmt.Sprintf("%d", len(users)) })</h2>
+				</div>
+				if len(users) == 0 {
+					<p class="empty-state">No users yet.</p>
+				} else {
+					<table class="admin-table">
+						<thead>
+							<tr>
+								<th>Name</th>
+								<th>Email</th>
+								<th>Role</th>
+								<th>Joined</th>
+							</tr>
+						</thead>
+						<tbody>
+							for _, user := range users {
+								<tr>
+									<td>
+										{ user.Name }
+										if user.ID == currentUser.ID {
+											<span class="you-marker">(you)</span>
+										}
+									</td>
+									<td>{ user.Email }</td>
+									<td>
+										if user.IsAdmin() {
+											<span class="role role-admin">Admin</span>
+										} else {
+											<span class="role role-user">User</span>
+										}
+									</td>
+									<td>{ user.CreatedAt.Format("Jan 2, 2006") }</td>
+								</tr>
+							}
+						</tbody>
+					</table>
+				}
+			</section>
+
+			<section class="admin-section">
+				<div class="section-header">
+					<h2>Pending Invites ({ fmt.Sprintf("%d", len(invites)) })</h2>
+				</div>
+				if len(invites) == 0 {
+					<p class="empty-state">No pending invites.</p>
+				} else {
+					<table class="admin-table">
+						<thead>
+							<tr>
+								<th>Email</th>
+								<th>Expires</th>
+								<th>Actions</th>
+							</tr>
+						</thead>
+						<tbody>
+							for _, invite := range invites {
+								<tr>
+									<td>{ invite.Email }</td>
+									<td>{ invite.ExpiresAt.Format("Jan 2, 2006") }</td>
+									<td class="actions">
+										<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/invites/%d/delete", invite.ID)) } class="inline-form">
+											<button type="submit" class="btn-link btn-danger" onclick="return confirm('Cancel this invite?')">Cancel</button>
+										</form>
+									</td>
+								</tr>
+							}
+						</tbody>
+					</table>
+				}
+			</section>
+		</div>
+	}
+}
