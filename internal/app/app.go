@@ -18,6 +18,12 @@ func New(cfg *config.Config) (*App, error) {
 		return nil, err
 	}
 
+	// Run pending migrations
+	if err := database.Migrate(db); err != nil {
+		db.Close()
+		return nil, err
+	}
+
 	return &App{
 		DB:     db,
 		Config: cfg,
