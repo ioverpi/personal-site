@@ -116,13 +116,15 @@ func (c *AdminController) CreateInvite(ctx *gin.Context) {
 	email := ctx.PostForm("email")
 
 	// Invite valid for 7 days
-	_, err := c.auth.CreateInvite(email, user.ID, 7*24*time.Hour)
+	invite, err := c.auth.CreateInvite(email, user.ID, 7*24*time.Hour)
 	if err != nil {
 		admin.InviteForm(user, "Failed to create invite").Render(ctx.Request.Context(), ctx.Writer)
 		return
 	}
 
-	ctx.Redirect(http.StatusFound, "/admin/users")
+	// Show the invite URL so admin can share it
+	inviteURL := c.config.BaseURL + "/register?token=" + invite.Token
+	admin.InviteSuccess(user, invite, inviteURL).Render(ctx.Request.Context(), ctx.Writer)
 }
 
 func (c *AdminController) DeleteInvite(ctx *gin.Context) {

@@ -1,0 +1,37 @@
+package admin
+
+import (
+	"github.com/ioverpi/personal-site/internal/models"
+	"github.com/ioverpi/personal-site/templates/layouts"
+)
+
+templ InviteSuccess(user *models.User, invite *models.Invite, inviteURL string) {
+	@layouts.Base("Invite Created") {
+		<div class="admin-editor">
+			<div class="editor-header">
+				<a href="/admin/users">&larr; Back to Users</a>
+				<h1>Invite Created</h1>
+			</div>
+			<div class="invite-success">
+				<p>An invite has been created for <strong>{ invite.Email }</strong></p>
+				<p>Share this link with them to register:</p>
+				<div class="invite-link-box">
+					<input type="text" readonly value={ inviteURL } id="invite-url" class="invite-url-input"/>
+					<button type="button" onclick="copyInviteURL()" class="btn btn-secondary">Copy</button>
+				</div>
+				<p class="help-text">This link expires on { invite.ExpiresAt.Format("January 2, 2006") }.</p>
+			</div>
+			<div class="form-actions">
+				<a href="/admin/invites/new" class="btn btn-primary">Create Another Invite</a>
+				<a href="/admin/users" class="btn btn-secondary">Back to Users</a>
+			</div>
+		</div>
+		<script>
+			function copyInviteURL() {
+				const input = document.getElementById('invite-url');
+				input.select();
+				navigator.clipboard.writeText(input.value);
+			}
+		</script>
+	}
+}
