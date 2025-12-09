@@ -4,14 +4,14 @@ import (
 	"database/sql"
 	"embed"
 	"fmt"
+	"io/fs"
 	"log"
-	"path/filepath"
 	"sort"
 	"strings"
 )
 
-//go:embed migrations/*.sql
-var migrationsFS embed.FS
+// MigrationsFS is set by main.go to embed migrations from root directory
+var MigrationsFS embed.FS
 
 // Migrate runs all pending migrations
 func Migrate(db *sql.DB) error {
@@ -21,7 +21,7 @@ func Migrate(db *sql.DB) error {
 	}
 
 	// Get list of migration files
-	files, err := migrationsFS.ReadDir("migrations")
+	files, err := fs.ReadDir(MigrationsFS, ".")
 	if err != nil {
 		return fmt.Errorf("failed to read migrations directory: %w", err)
 	}
@@ -49,7 +49,7 @@ func Migrate(db *sql.DB) error {
 
 		log.Printf("Running migration: %s", filename)
 
-		content, err := migrationsFS.ReadFile(filepath.Join("migrations", filename))
+		content, err := fs.ReadFile(MigrationsFS, filename)
 		if err != nil {
 			return fmt.Errorf("failed to read migration %s: %w", filename, err)
 		}

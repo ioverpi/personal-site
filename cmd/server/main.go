@@ -7,12 +7,18 @@ import (
 	"github.com/ioverpi/personal-site/internal/app"
 	"github.com/ioverpi/personal-site/internal/config"
 	"github.com/ioverpi/personal-site/internal/controllers"
+	"github.com/ioverpi/personal-site/internal/database"
 	"github.com/ioverpi/personal-site/internal/middleware"
 	"github.com/ioverpi/personal-site/internal/services"
+	"github.com/ioverpi/personal-site/migrations"
 )
+
 
 func main() {
 	cfg := config.Load()
+
+	// Set migrations for database package
+	database.MigrationsFS = migrations.FS
 
 	application, err := app.New(cfg)
 	if err != nil {

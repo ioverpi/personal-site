@@ -1,9 +1,0 @@
-CREATE TABLE IF NOT EXISTS quotes (
-    id SERIAL PRIMARY KEY,
-    content TEXT NOT NULL,
-    author VARCHAR(255) NOT NULL,
-    is_own BOOLEAN NOT NULL DEFAULT FALSE,
-    created_at TIMESTAMP NOT NULL DEFAULT NOW()
-);
-
-CREATE INDEX idx_quotes_is_own ON quotes(is_own);
