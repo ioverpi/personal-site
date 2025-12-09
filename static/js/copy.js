@@ -1,4 +1,5 @@
-document.addEventListener('DOMContentLoaded', function() {
+// Run immediately since this script is loaded on the page that needs it
+(function() {
   const copyBtn = document.getElementById('copy-invite-btn');
   if (copyBtn) {
     copyBtn.addEventListener('click', function() {
@@ -7,4 +8,4 @@ document.addEventListener('DOMContentLoaded', function() {
       navigator.clipboard.writeText(input.value);
     });
   }
-});
+})();
