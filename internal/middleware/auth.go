@@ -101,25 +101,3 @@ func redirectToLogin(c *gin.Context) {
 	c.Redirect(http.StatusFound, "/admin/login")
 	c.Abort()
 }
-
-// AdminAuth is deprecated - kept for backwards compatibility during migration
-// TODO: Remove after Phase 4 controller updates
-func AdminAuth(password string) gin.HandlerFunc {
-	return func(c *gin.Context) {
-		path := c.Request.URL.Path
-		if path == "/admin/login" {
-			c.Next()
-			return
-		}
-
-		if cookie, err := c.Cookie("admin_session"); err == nil {
-			if cookie == password {
-				c.Next()
-				return
-			}
-		}
-
-		c.Redirect(http.StatusFound, "/admin/login")
-		c.Abort()
-	}
-}

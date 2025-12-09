@@ -22,6 +22,9 @@ func main() {
 
 	r := gin.Default()
 
+	// Security headers
+	r.Use(middleware.SecurityHeaders())
+
 	// Static files
 	r.Static("/static", "./static")
 

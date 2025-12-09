@@ -11,7 +11,6 @@ type Config struct {
 	SecureCookies        bool   // Set to true in production (HTTPS)
 	SessionDurationHours int    // How long sessions last
 	BaseURL              string // For invite links
-	AdminPassword        string // Deprecated: Remove after Phase 4
 }
 
 func Load() *Config {
@@ -21,7 +20,6 @@ func Load() *Config {
 		SecureCookies:        getEnvBool("SECURE_COOKIES", false),
 		SessionDurationHours: getEnvInt("SESSION_DURATION_HOURS", 24*7), // 1 week default
 		BaseURL:              getEnv("BASE_URL", "http://localhost:3000"),
-		AdminPassword:        getEnv("ADMIN_PASSWORD", "admin"), // Deprecated
 	}
 }
 
