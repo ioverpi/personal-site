@@ -17,7 +17,7 @@ templ InviteSuccess(user *models.User, invite *models.Invite, inviteURL string) 
 				<p>Share this link with them to register:</p>
 				<div class="invite-link-box">
 					<input type="text" readonly value={ inviteURL } id="invite-url" class="invite-url-input"/>
-					<button type="button" onclick="copyInviteURL()" class="btn btn-secondary">Copy</button>
+					<button type="button" id="copy-invite-btn" class="btn btn-secondary">Copy</button>
 				</div>
 				<p class="help-text">This link expires on { invite.ExpiresAt.Format("January 2, 2006") }.</p>
 			</div>
@@ -26,12 +26,6 @@ templ InviteSuccess(user *models.User, invite *models.Invite, inviteURL string) 
 				<a href="/admin/users" class="btn btn-secondary">Back to Users</a>
 			</div>
 		</div>
-		<script>
-			function copyInviteURL() {
-				const input = document.getElementById('invite-url');
-				input.select();
-				navigator.clipboard.writeText(input.value);
-			}
-		</script>
+		<script src="/static/js/copy.js"></script>
 	}
 }
