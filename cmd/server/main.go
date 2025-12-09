@@ -1,7 +1,13 @@
 package main
 
 import (
+	"context"
 	"log"
+	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/ioverpi/personal-site/internal/app"
@@ -13,9 +19,13 @@ import (
 	"github.com/ioverpi/personal-site/migrations"
 )
 
-
 func main() {
 	cfg := config.Load()
+
+	// Set Gin mode based on environment
+	if cfg.Environment == "production" {
+		gin.SetMode(gin.ReleaseMode)
+	}
 
 	// Set migrations for database package
 	database.MigrationsFS = migrations.FS
@@ -57,6 +67,11 @@ func main() {
 		cfg,
 	)
 
+	// Health check
+	r.GET("/health", func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{"status": "ok"})
+	})
+
 	// Public routes
 	r.GET("/", homeCtrl.Index)
 	r.GET("/blog", blogCtrl.List)
@@ -69,9 +84,12 @@ func main() {
 	r.GET("/register", adminCtrl.RegisterPage)
 	r.POST("/register", adminCtrl.Register)
 
-	// Admin auth routes (no auth required)
+	// Rate limiter for auth endpoints (5 attempts per minute)
+	authLimiter := middleware.NewRateLimiter(5, time.Minute)
+
+	// Admin auth routes (no auth required, but rate limited)
 	r.GET("/admin/login", adminCtrl.LoginPage)
-	r.POST("/admin/login", adminCtrl.Login)
+	r.POST("/admin/login", middleware.RateLimitMiddleware(authLimiter), adminCtrl.Login)
 
 	// Protected admin routes
 	admin := r.Group("/admin")
@@ -108,9 +126,36 @@ func main() {
 		admin.POST("/quotes/:id/delete", adminCtrl.DeleteQuote)
 	}
 
-	// Start server
-	log.Printf("Server starting on port %s", cfg.Port)
-	if err := r.Run(":" + cfg.Port); err != nil {
-		log.Fatalf("Failed to start server: %v", err)
+	// Create server with timeouts
+	srv := &http.Server{
+		Addr:         ":" + cfg.Port,
+		Handler:      r,
+		ReadTimeout:  15 * time.Second,
+		WriteTimeout: 30 * time.Second,
+		IdleTimeout:  60 * time.Second,
 	}
+
+	// Start server in goroutine
+	go func() {
+		log.Printf("Server starting on port %s", cfg.Port)
+		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			log.Fatalf("Failed to start server: %v", err)
+		}
+	}()
+
+	// Wait for interrupt signal
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+	<-quit
+	log.Println("Shutting down server...")
+
+	// Give outstanding requests 10 seconds to complete
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	if err := srv.Shutdown(ctx); err != nil {
+		log.Fatalf("Server forced to shutdown: %v", err)
+	}
+
+	log.Println("Server exited")
 }

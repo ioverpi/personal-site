@@ -13,6 +13,8 @@ import (
 	"github.com/ioverpi/personal-site/templates/pages/admin"
 )
 
+// Note: CSRF tokens removed - using SameSite=Lax cookies for CSRF protection instead
+
 type AdminController struct {
 	content  *services.AdminService
 	blog     *services.BlogService
@@ -128,7 +130,7 @@ func (c *AdminController) CreateInvite(ctx *gin.Context) {
 }
 
 func (c *AdminController) DeleteInvite(ctx *gin.Context) {
-	id, _ := strconv.Atoi(ctx.Param("id"))
+	id := getIDParam(ctx, "id")
 	c.auth.DeleteInvite(id)
 	ctx.Redirect(http.StatusFound, "/admin/users")
 }
@@ -211,7 +213,7 @@ func (c *AdminController) CreatePost(ctx *gin.Context) {
 }
 
 func (c *AdminController) EditPost(ctx *gin.Context) {
-	id, _ := strconv.Atoi(ctx.Param("id"))
+	id := getIDParam(ctx, "id")
 	post, err := c.blog.GetPostByID(id)
 	if err != nil {
 		ctx.Status(http.StatusNotFound)
@@ -222,7 +224,7 @@ func (c *AdminController) EditPost(ctx *gin.Context) {
 }
 
 func (c *AdminController) UpdatePost(ctx *gin.Context) {
-	id, _ := strconv.Atoi(ctx.Param("id"))
+	id := getIDParam(ctx, "id")
 	input := services.UpdatePostInput{
 		Title:   ctx.PostForm("title"),
 		Slug:    ctx.PostForm("slug"),
@@ -230,8 +232,7 @@ func (c *AdminController) UpdatePost(ctx *gin.Context) {
 		Publish: ctx.PostForm("publish") == "on",
 	}
 
-	_, err := c.content.UpdatePost(id, input)
-	if err != nil {
+	if _, err := c.content.UpdatePost(id, input); err != nil {
 		ctx.Status(http.StatusInternalServerError)
 		return
 	}
@@ -240,7 +241,7 @@ func (c *AdminController) UpdatePost(ctx *gin.Context) {
 }
 
 func (c *AdminController) DeletePost(ctx *gin.Context) {
-	id, _ := strconv.Atoi(ctx.Param("id"))
+	id := getIDParam(ctx, "id")
 	c.content.DeletePost(id)
 	ctx.Redirect(http.StatusFound, "/admin")
 }
@@ -252,7 +253,7 @@ func (c *AdminController) NewProject(ctx *gin.Context) {
 }
 
 func (c *AdminController) CreateProject(ctx *gin.Context) {
-	displayOrder, _ := strconv.Atoi(ctx.PostForm("display_order"))
+	displayOrder, _ := strconv.Atoi(ctx.PostForm("display_order")) // defaults to 0 if invalid
 	tags := parseTags(ctx.PostForm("tags"))
 
 	input := services.CreateProjectInput{
@@ -274,7 +275,7 @@ func (c *AdminController) CreateProject(ctx *gin.Context) {
 }
 
 func (c *AdminController) EditProject(ctx *gin.Context) {
-	id, _ := strconv.Atoi(ctx.Param("id"))
+	id := getIDParam(ctx, "id")
 	project, err := c.projects.GetProjectByID(id)
 	if err != nil {
 		ctx.Status(http.StatusNotFound)
@@ -285,7 +286,7 @@ func (c *AdminController) EditProject(ctx *gin.Context) {
 }
 
 func (c *AdminController) UpdateProject(ctx *gin.Context) {
-	id, _ := strconv.Atoi(ctx.Param("id"))
+	id := getIDParam(ctx, "id")
 	displayOrder, _ := strconv.Atoi(ctx.PostForm("display_order"))
 	tags := parseTags(ctx.PostForm("tags"))
 
@@ -298,8 +299,7 @@ func (c *AdminController) UpdateProject(ctx *gin.Context) {
 		DisplayOrder: displayOrder,
 	}
 
-	_, err := c.content.UpdateProject(id, input)
-	if err != nil {
+	if _, err := c.content.UpdateProject(id, input); err != nil {
 		ctx.Status(http.StatusInternalServerError)
 		return
 	}
@@ -308,7 +308,7 @@ func (c *AdminController) UpdateProject(ctx *gin.Context) {
 }
 
 func (c *AdminController) DeleteProject(ctx *gin.Context) {
-	id, _ := strconv.Atoi(ctx.Param("id"))
+	id := getIDParam(ctx, "id")
 	c.content.DeleteProject(id)
 	ctx.Redirect(http.StatusFound, "/admin")
 }
@@ -336,7 +336,7 @@ func (c *AdminController) CreateQuote(ctx *gin.Context) {
 }
 
 func (c *AdminController) EditQuote(ctx *gin.Context) {
-	id, _ := strconv.Atoi(ctx.Param("id"))
+	id := getIDParam(ctx, "id")
 	quote, err := c.quotes.GetQuoteByID(id)
 	if err != nil {
 		ctx.Status(http.StatusNotFound)
@@ -347,15 +347,14 @@ func (c *AdminController) EditQuote(ctx *gin.Context) {
 }
 
 func (c *AdminController) UpdateQuote(ctx *gin.Context) {
-	id, _ := strconv.Atoi(ctx.Param("id"))
+	id := getIDParam(ctx, "id")
 	input := services.UpdateQuoteInput{
 		Content: ctx.PostForm("content"),
 		Author:  ctx.PostForm("author"),
 		IsOwn:   ctx.PostForm("is_own") == "on",
 	}
 
-	_, err := c.content.UpdateQuote(id, input)
-	if err != nil {
+	if _, err := c.content.UpdateQuote(id, input); err != nil {
 		ctx.Status(http.StatusInternalServerError)
 		return
 	}
@@ -364,12 +363,23 @@ func (c *AdminController) UpdateQuote(ctx *gin.Context) {
 }
 
 func (c *AdminController) DeleteQuote(ctx *gin.Context) {
-	id, _ := strconv.Atoi(ctx.Param("id"))
+	id := getIDParam(ctx, "id")
 	c.content.DeleteQuote(id)
 	ctx.Redirect(http.StatusFound, "/admin")
 }
 
 // Helpers
+
+// getIDParam extracts and validates an integer ID from URL params.
+// Panics on invalid ID (caught by Gin's recovery middleware).
+func getIDParam(ctx *gin.Context, name string) int {
+	id, err := strconv.Atoi(ctx.Param(name))
+	if err != nil {
+		ctx.AbortWithStatus(http.StatusBadRequest)
+		panic(http.StatusBadRequest)
+	}
+	return id
+}
 
 func parseTags(tagsStr string) []string {
 	if tagsStr == "" {

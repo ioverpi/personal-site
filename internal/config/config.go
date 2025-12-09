@@ -8,6 +8,7 @@ import (
 type Config struct {
 	DatabaseURL          string
 	Port                 string
+	Environment          string // "development" or "production"
 	SecureCookies        bool   // Set to true in production (HTTPS)
 	SessionDurationHours int    // How long sessions last
 	BaseURL              string // For invite links
@@ -17,6 +18,7 @@ func Load() *Config {
 	return &Config{
 		DatabaseURL:          getEnv("DATABASE_URL", "postgres://dev:dev@localhost:5432/personal_site?sslmode=disable"),
 		Port:                 getEnv("PORT", "3000"),
+		Environment:          getEnv("ENVIRONMENT", "development"),
 		SecureCookies:        getEnvBool("SECURE_COOKIES", false),
 		SessionDurationHours: getEnvInt("SESSION_DURATION_HOURS", 24*7), // 1 week default
 		BaseURL:              getEnv("BASE_URL", "http://localhost:3000"),
