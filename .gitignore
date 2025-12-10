@@ -37,3 +37,6 @@ Thumbs.db
 
 # Local uploads (if any)
 /uploads/
+
+# Don't include the generated docs
+docs/
