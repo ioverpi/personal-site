@@ -1,0 +1,200 @@
+package pages
+
+templ LastGameOf2020() {
+	<!DOCTYPE html>
+	<html>
+		<head>
+			<title>The Last Program of 2020</title>
+			<style>
+				html {
+					box-sizing: border-box;
+				}
+
+				*, *:before, *:after {
+					box-sizing: inherit;
+				}
+
+				body {
+					margin: 0;
+				}
+			</style>
+		</head>
+		<body>
+			<canvas id="canvas">You live in the last century. Sorry :(</canvas>
+			<script>
+				let canvas, ctx;
+				let bullets = [];
+				let player = {
+					x: window.innerWidth/2,
+					y: window.innerHeight/2,
+					theta: 0
+				}
+				let speed = .1;
+				let bulletSpeed = 1;
+				let leftPressed = false, rightPressed = false;
+				let enemies = [];
+				let gameOver = false;
+
+				function init(){
+					canvas = document.getElementById("canvas");
+					ctx = canvas.getContext("2d");
+					canvas.width = window.innerWidth;
+					canvas.height = window.innerHeight-6;
+					window.addEventListener("keydown", handleKeyDown, false);
+					window.addEventListener("keyup", handleKeyUp, false);
+					for(let i = 0; i < 3; i++){
+						enemies.push(genEnemy())
+					}
+					draw()
+				}
+
+				function draw(){
+					ctx.clearRect(0, 0, canvas.width, canvas.height)
+					drawBullets()
+					drawPlayer()
+					drawEnemies()
+
+					if(gameOver){
+						ctx.font = "30px Verdana";
+						ctx.textAlign = "center";
+						ctx.fillStyle = "#000000"
+						ctx.fillText("Game Over!", canvas.width/2, canvas.height/2 - 100)
+						return
+					}
+
+					if(leftPressed){
+						player.theta = ((player.theta - 1)%100);
+					}
+
+					if(rightPressed){
+						player.theta = ((player.theta + 1)%100);
+					}
+
+					for(let j = 0; j < enemies.length; j++){
+						angle = Math.atan((enemies[j].y - player.y)/(enemies[j].x - player.x))
+						if(enemies[j].x > player.x){
+							enemies[j].x -= Math.cos(angle)
+							enemies[j].y -= Math.sin(angle)
+						}else{
+							enemies[j].x += Math.cos(angle)
+							enemies[j].y += Math.sin(angle)
+						}
+
+						let goners = []
+						for(let i = 0; i < bullets.length; i++){
+							if(Math.pow(bullets[i].x - enemies[j].x, 2) + Math.pow(bullets[i].y - enemies[j].y, 2) < 1225){
+								enemies[j] = genEnemy()
+								bullets[i].x = 1000
+								bullets[i].y = 1000
+							}
+						}
+
+						if(Math.pow(enemies[j].x - player.x, 2) + Math.pow(enemies[j].y - player.y, 2) < 3600){
+							gameOver = true;
+						}
+					}
+					requestAnimationFrame(draw);
+				}
+
+				function drawPlayer(){
+					angle = player.theta*2*Math.PI/100
+					ctx.beginPath()
+					ctx.moveTo(player.x, player.y)
+					ctx.arc(player.x, player.y, 35, angle-.2, angle+.2)
+					ctx.closePath()
+					ctx.fillStyle = "#000000"
+					ctx.fill()
+
+					ctx.beginPath()
+					ctx.arc(player.x, player.y, 30, 0, 2 * Math.PI)
+					ctx.closePath()
+					ctx.fillStyle = "#ff3333"
+					ctx.fill()
+				}
+
+				function drawBullets(){
+					for(let bullet of bullets){
+						bullet.x += bullet.dx
+						bullet.y += bullet.dy
+						ctx.beginPath()
+						ctx.arc(bullet.x, bullet.y, 5, 0, 2*Math.PI);
+						ctx.closePath();
+						ctx.fillStyle = "#000000";
+						ctx.fill();
+					}
+				}
+
+				let canShoot = true
+				function genBullet(){
+					canShoot = false
+					setTimeout(reloadBullet, 500)
+					return {
+						x: player.x + Math.cos(player.theta*2*Math.PI/100)*30,
+						y: player.y + Math.sin(player.theta*2*Math.PI/100)*30,
+						dx: Math.cos(player.theta*2*Math.PI/100)*bulletSpeed,
+						dy: Math.sin(player.theta*2*Math.PI/100)*bulletSpeed
+					}
+				}
+
+				function drawEnemies(){
+					for(let enemy of enemies){
+						ctx.beginPath()
+						ctx.arc(enemy.x, enemy.y, 30, 0, 2*Math.PI);
+						ctx.closePath();
+						ctx.fillStyle = enemy.fillStyle;
+						ctx.fill();
+					}
+				}
+
+				function genEnemy(){
+					angle = Math.random()*2*Math.PI;
+					return {
+						x: player.x + Math.cos(angle)*400,
+						y: player.y + Math.sin(angle)*400,
+						fillStyle: `rgb(${parseInt(Math.random()*255)}, ${parseInt(Math.random()*255)}, ${parseInt(Math.random()*255)})`
+					}
+				}
+
+				function reloadBullet(){
+					canShoot = true
+				}
+
+				function handleKeyDown(e){
+					if(e.which == 32){
+						if(canShoot){
+							bullets.push(genBullet())
+						}
+						if(gameOver){
+							gameOver = false;
+							enemies = [];
+							bullets = [];
+							for(let i = 0; i < 3; i++){
+								enemies.push(genEnemy())
+							}
+							setTimeout(draw, 1000)
+						}
+					}
+					if(e.which == 37){
+						leftPressed = true;
+					}
+
+					if(e.which == 39){
+						rightPressed = true;
+					}
+				}
+
+				function handleKeyUp(e){
+					if(e.which == 37){
+						leftPressed = false;
+					}
+
+					if(e.which == 39){
+						rightPressed = false;
+					}
+				}
+
+				window.addEventListener("load", init, false)
+			</script>
+		</body>
+	</html>
+}

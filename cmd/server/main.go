@@ -85,6 +85,7 @@ func main() {
 	r.GET("/blog", blogCtrl.List)
 	r.GET("/blog/:slug", blogCtrl.Show)
 	r.GET("/projects", projectsCtrl.List)
+	r.GET("/projects/last-game-of-2020", projectsCtrl.LastGameOf2020)
 	r.GET("/quotes", quotesCtrl.List)
 	r.GET("/quotes/random", quotesCtrl.Random)
 

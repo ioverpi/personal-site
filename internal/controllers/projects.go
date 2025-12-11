@@ -25,3 +25,7 @@ func (c *ProjectsController) List(ctx *gin.Context) {
 
 	pages.ProjectsList(projects).Render(ctx.Request.Context(), ctx.Writer)
 }
+
+func (c *ProjectsController) LastGameOf2020(ctx *gin.Context) {
+	pages.LastGameOf2020().Render(ctx.Request.Context(), ctx.Writer)
+}
