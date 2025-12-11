@@ -1,9 +1,13 @@
 package pages
 
 import (
+	"time"
+
 	"github.com/ioverpi/personal-site/internal/models"
 	"github.com/ioverpi/personal-site/templates/layouts"
 )
+
+var mountainTZ, _ = time.LoadLocation("America/Denver") 
 
 templ BlogPost(post *models.Post) {
 	@layouts.Base(post.Title) {
@@ -11,7 +15,7 @@ templ BlogPost(post *models.Post) {
 			<header class="post-header">
 				<h1>{ post.Title }</h1>
 				if post.PublishedAt != nil {
-					<time class="post-date">{ post.PublishedAt.Format("January 2, 2006") }</time>
+					<time class="post-date">{ post.PublishedAt.In(mountainTZ).Format("January 2, 2006") }</time>
 				}
 			</header>
 			<div class="post-content">
